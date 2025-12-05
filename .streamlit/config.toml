@@ -1,0 +1,30 @@
+[server]
+# Configuración del servidor para mejor rendimiento
+maxUploadSize = 200
+enableCORS = true
+enableXsrfProtection = true
+headless = true
+
+[browser]
+# Configuración del navegador
+gatherUsageStats = false
+serverAddress = "localhost"
+serverPort = 8501
+
+[runner]
+# Optimización de ejecución
+fastReruns = true
+magicEnabled = true
+
+[client]
+# Configuración del cliente
+showErrorDetails = true
+toolbarMode = "minimal"
+
+[theme]
+# Tema para mejor rendimiento visual
+base = "light"
+primaryColor = "#1f77b4"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F0F2F6"
+textColor = "#262730"
