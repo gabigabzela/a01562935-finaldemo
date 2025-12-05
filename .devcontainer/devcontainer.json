@@ -1,0 +1,13 @@
+{
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"GitHub.copilot",
+				"ms-python.python",
+				"ms-toolsai.jupyter",
+				"mechatroner.rainbow-csv"
+			]
+		}
+	},
+	"postCreateCommand": "pip install -r requirements.txt"
+}
