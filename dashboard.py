@@ -30,295 +30,279 @@ if 'initialized' not in st.session_state:
     st.session_state.load_count = 0
 
 # Sistema de autenticación
-if 'authenticated' not in st.session_state:
-    st.session_state.authenticated = False
-
-# Credenciales (usuario: admin, password: ficotec2024)
-VALID_USERNAME = "admin"
-VALID_PASSWORD_HASH = hashlib.sha256("ficotec2024".encode()).hexdigest()
-
-def check_password(username, password):
-    """Verifica las credenciales del usuario"""
-    password_hash = hashlib.sha256(password.encode()).hexdigest()
-    return username == VALID_USERNAME and password_hash == VALID_PASSWORD_HASH
-
-def show_login_page():
-    """Muestra la página de login con landing page"""
+def check_password():
+    """Retorna True si el usuario ingresó la contraseña correcta."""
     
-    # Estilos para landing page oscura y profesional
-    st.markdown("""
-        <style>
-        /* Ocultar header y footer de Streamlit */
-        #MainMenu {visibility: hidden;}
-        footer {visibility: hidden;}
-        header {visibility: hidden;}
+    def password_entered():
+        """Verifica si la contraseña ingresada es correcta."""
+        if st.session_state["username"] in st.secrets.get("passwords", {}) and \
+           hashlib.sha256(st.session_state["password"].encode()).hexdigest() == \
+           st.secrets["passwords"][st.session_state["username"]]:
+            st.session_state["password_correct"] = True
+            st.session_state["user_name"] = st.session_state["username"]
+            del st.session_state["password"]  # No guardar la contraseña
+            del st.session_state["username"]
+        else:
+            st.session_state["password_correct"] = False
+
+    # Primera vez o si no ha ingresado correctamente
+    if "password_correct" not in st.session_state:
+        # Ocultar sidebar y elementos de navegación
+        st.markdown("""
+            <style>
+            /* Ocultar sidebar y header en login */
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+            header {
+                display: none !important;
+            }
+            
+            /* Fondo oscuro general */
+            .stApp {
+                background: linear-gradient(135deg, #0a0e27 0%, #1a1d35 100%);
+            }
+            
+            /* Contenedor de login */
+            .login-container {
+                max-width: 450px;
+                margin: 8vh auto;
+                padding: 3rem;
+                background: linear-gradient(145deg, #1e2139 0%, #161829 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                           0 0 100px rgba(79, 70, 229, 0.1);
+                border: 1px solid rgba(79, 70, 229, 0.2);
+            }
+            
+            /* Logo y título */
+            .login-logo {
+                text-align: center;
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: bold;
+            }
+            
+            .login-title {
+                text-align: center;
+                color: #ffffff;
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            
+            .login-subtitle {
+                text-align: center;
+                color: #9ca3af;
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            
+            /* Inputs personalizados */
+            .stTextInput input {
+                background-color: #0f1419 !important;
+                border: 2px solid #2d3748 !important;
+                border-radius: 10px !important;
+                padding: 12px 16px !important;
+                color: #ffffff !important;
+                font-size: 1rem !important;
+                transition: all 0.3s ease !important;
+            }
+            
+            .stTextInput input:focus {
+                border-color: #667eea !important;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            }
+            
+            /* Botón de login */
+            .stButton button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 10px !important;
+                padding: 12px 24px !important;
+                font-size: 1.1rem !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+            }
+            
+            .stButton button:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+            }
+            
+            /* Footer del login */
+            .login-footer {
+                text-align: center;
+                color: #6b7280;
+                font-size: 0.875rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #2d3748;
+            }
+            
+            /* Icono de seguridad */
+            .security-badge {
+                text-align: center;
+                margin-top: 1.5rem;
+                color: #4ade80;
+                font-size: 0.875rem;
+            }
+            </style>
+        """, unsafe_allow_html=True)
         
-        /* Ocultar sidebar en login */
-        [data-testid="stSidebar"] {
-            display: none !important;
-        }
-        
-        section[data-testid="stSidebar"] {
-            display: none !important;
-        }
-        
-        .stApp {
-            background: linear-gradient(180deg, #0d1117 0%, #010409 100%);
-        }
-        
-        .hero-section {
-            text-align: center;
-            padding: 2rem 2rem 1rem 2rem;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        
-        .logo-container {
-            margin-bottom: 1rem;
-        }
-        
-        .logo-icon {
-            font-size: 3.5rem;
-            margin-bottom: 0.3rem;
-            filter: drop-shadow(0 0 20px rgba(255, 255, 255, 0.1));
-        }
-        
-        .logo-text {
-            font-size: 2.8rem;
-            font-weight: 800;
-            color: #ffffff;
-            letter-spacing: 0.3rem;
-            margin: 0;
-            text-transform: uppercase;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        
-        .tagline {
-            color: #c9d1d9;
-            font-size: 0.95rem;
-            margin-top: 0.3rem;
-            font-weight: 400;
-            letter-spacing: 0.05rem;
-        }
-        
-        .login-box {
-            max-width: 420px;
-            margin: 1.5rem auto;
-            padding: 2rem;
-            background-color: #161b22;
-            border: 2px solid #30363d;
-            border-radius: 12px;
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
-        }
-        
-        .login-title {
-            color: #ffffff;
-            font-size: 1.2rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .stats-section {
-            display: flex;
-            justify-content: center;
-            gap: 1.5rem;
-            margin: 1.5rem 0;
-            padding: 0 2rem;
-        }
-        
-        .stat-box {
-            text-align: center;
-            padding: 1.2rem 1rem;
-            background-color: #161b22;
-            border: 2px solid #30363d;
-            border-radius: 8px;
-            min-width: 140px;
-        }
-        
-        .stat-number {
-            font-size: 1.8rem;
-            font-weight: 800;
-            color: #ffffff;
-            margin: 0;
-            text-shadow: 0 2px 8px rgba(255, 255, 255, 0.2);
-        }
-        
-        .stat-label {
-            font-size: 0.8rem;
-            color: #c9d1d9;
-            margin-top: 0.4rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08rem;
-            font-weight: 500;
-        }
-        
-        .footer-section {
-            text-align: center;
-            margin-top: 2rem;
-            padding: 1rem;
-            color: #8b949e;
-            font-size: 0.8rem;
-        }
-        
-        .footer-section p {
-            margin: 0.5rem 0;
-        }
-        
-        .credentials-hint {
-            background-color: #0d1117;
-            border: 2px solid #30363d;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-top: 1rem;
-            color: #c9d1d9;
-            font-size: 0.9rem;
-        }
-        
-        .credentials-hint strong {
-            color: #ffffff;
-        }
-        
-        /* Formulario oscuro */
-        .stTextInput > div > div > input {
-            background-color: #0d1117 !important;
-            border: 2px solid #30363d !important;
-            color: #ffffff !important;
-            border-radius: 6px !important;
-            padding: 0.6rem !important;
-            font-size: 0.95rem !important;
-        }
-        
-        .stTextInput > div > div > input::placeholder {
-            color: #8b949e !important;
-        }
-        
-        .stTextInput > div > div > input:focus {
-            border-color: #58a6ff !important;
-            box-shadow: 0 0 0 4px rgba(88, 166, 255, 0.15) !important;
-        }
-        
-        .stButton > button {
-            background-color: #238636 !important;
-            color: #ffffff !important;
-            border: none !important;
-            border-radius: 6px !important;
-            padding: 0.75rem 2rem !important;
-            font-weight: 600 !important;
-            letter-spacing: 0.05rem !important;
-            transition: all 0.2s !important;
-        }
-        
-        .stButton > button:hover {
-            background-color: #2ea043 !important;
-            transform: translateY(-1px) !important;
-            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3) !important;
-        }
-        
-        .stForm {
-            background-color: transparent !important;
-            border: none !important;
-            padding: 0 !important;
-        }
-        
-        /* Eliminar contenedor gris del formulario */
-        div[data-testid="stForm"] {
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        
-        div[data-testid="stForm"] > div {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        /* Ocultar contenedor de columnas extra */
-        div[data-testid="column"] {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        .row-widget {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        [data-testid="stVerticalBlock"] > div:has(.login-box) {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        /* Eliminar todos los contenedores visibles extra */
-        .element-container {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        [data-testid="stVerticalBlock"] {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        [data-testid="stHorizontalBlock"] {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        .block-container {
-            background-color: transparent !important;
-            border: none !important;
-        }
-        
-        /* Ocultar cualquier div con bordes grises */
-        div[class*="css"] {
-            border: none !important;
-        }
-        </style>
-    """, unsafe_allow_html=True)
-    
-    # Hero Section
-    st.markdown("""
-        <div class="hero-section">
-            <div class="logo-container">
-                <h1 class="logo-text">FICOTEC</h1>
-                <p class="tagline">Sistema Inteligente de Análisis y Predicción de Seguridad</p>
+        st.markdown("""
+            <div class="login-container">
+                <div class="login-logo">🔐</div>
+                <div class="login-title">FICOTEC</div>
+                <div class="login-subtitle">Sistema de Análisis de Robos</div>
             </div>
-        </div>
-    """, unsafe_allow_html=True)
-    
-    # Login Form
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    st.markdown('<div class="login-title">Acceso al Sistema</div>', unsafe_allow_html=True)
-    
-    with st.form("login_form"):
-        username = st.text_input("Usuario", placeholder="admin", label_visibility="collapsed")
-        st.markdown('<div style="height: 0.3rem;"></div>', unsafe_allow_html=True)
-        password = st.text_input("Contraseña", type="password", placeholder="••••••••", label_visibility="collapsed")
-        st.markdown('<div style="height: 0.7rem;"></div>', unsafe_allow_html=True)
-        submit = st.form_submit_button("INICIAR SESIÓN", use_container_width=True)
+        """, unsafe_allow_html=True)
         
-        if submit:
-            if check_password(username, password):
-                st.session_state.authenticated = True
-                st.success("Acceso concedido")
-                st.rerun()
-            else:
-                st.error("Credenciales incorrectas")
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("👤 Usuario", key="username", placeholder="Ingresa tu usuario", label_visibility="collapsed")
+            st.text_input("🔑 Contraseña", type="password", key="password", placeholder="Ingresa tu contraseña", label_visibility="collapsed")
+            st.button("🚀 Iniciar Sesión", on_click=password_entered, use_container_width=True)
+            
+            st.markdown("""
+                <div class="security-badge">
+                    🔒 Conexión segura con encriptación SHA-256
+                </div>
+                <div class="login-footer">
+                    © 2025 FICOTEC - Análisis Predictivo de Seguridad
+                </div>
+            """, unsafe_allow_html=True)
+        
+        return False
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Contraseña incorrecta
+    elif not st.session_state["password_correct"]:
+        st.markdown("""
+            <style>
+            [data-testid="stSidebar"] {
+                display: none;
+            }
+            header {
+                display: none !important;
+            }
+            .stApp {
+                background: linear-gradient(135deg, #0a0e27 0%, #1a1d35 100%);
+            }
+            .login-container {
+                max-width: 450px;
+                margin: 8vh auto;
+                padding: 3rem;
+                background: linear-gradient(145deg, #1e2139 0%, #161829 100%);
+                border-radius: 20px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
+                           0 0 100px rgba(79, 70, 229, 0.1);
+                border: 1px solid rgba(79, 70, 229, 0.2);
+            }
+            .login-logo {
+                text-align: center;
+                font-size: 4rem;
+                margin-bottom: 1rem;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: bold;
+            }
+            .login-title {
+                text-align: center;
+                color: #ffffff;
+                font-size: 2rem;
+                font-weight: 700;
+                margin-bottom: 0.5rem;
+            }
+            .login-subtitle {
+                text-align: center;
+                color: #9ca3af;
+                font-size: 1rem;
+                margin-bottom: 2rem;
+            }
+            .stTextInput input {
+                background-color: #0f1419 !important;
+                border: 2px solid #2d3748 !important;
+                border-radius: 10px !important;
+                padding: 12px 16px !important;
+                color: #ffffff !important;
+                font-size: 1rem !important;
+                transition: all 0.3s ease !important;
+            }
+            .stTextInput input:focus {
+                border-color: #667eea !important;
+                box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            }
+            .stButton button {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+                color: white !important;
+                border: none !important;
+                border-radius: 10px !important;
+                padding: 12px 24px !important;
+                font-size: 1.1rem !important;
+                font-weight: 600 !important;
+                transition: all 0.3s ease !important;
+                box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+            }
+            .stButton button:hover {
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6) !important;
+            }
+            .security-badge {
+                text-align: center;
+                margin-top: 1.5rem;
+                color: #4ade80;
+                font-size: 0.875rem;
+            }
+            .login-footer {
+                text-align: center;
+                color: #6b7280;
+                font-size: 0.875rem;
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+                border-top: 1px solid #2d3748;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        st.markdown("""
+            <div class="login-container">
+                <div class="login-logo">🔐</div>
+                <div class="login-title">FICOTEC</div>
+                <div class="login-subtitle">Sistema de Análisis de Robos</div>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        col1, col2, col3 = st.columns([1, 2, 1])
+        with col2:
+            st.text_input("👤 Usuario", key="username", placeholder="Ingresa tu usuario", label_visibility="collapsed")
+            st.text_input("🔑 Contraseña", type="password", key="password", placeholder="Ingresa tu contraseña", label_visibility="collapsed")
+            st.button("🚀 Iniciar Sesión", on_click=password_entered, use_container_width=True)
+            st.error("❌ Usuario o contraseña incorrectos")
+            
+            st.markdown("""
+                <div class="security-badge">
+                    🔒 Conexión segura con encriptación SHA-256
+                </div>
+                <div class="login-footer">
+                    © 2025 FICOTEC - Análisis Predictivo de Seguridad
+                </div>
+            """, unsafe_allow_html=True)
+        
+        return False
     
-    # Footer
-    st.markdown("""
-        <div class="footer-section">
-            <p>© 2025 FICOTEC | Sistema de Seguridad Inteligente</p>
-        </div>
-    """, unsafe_allow_html=True)
+    # Contraseña correcta
+    else:
+        return True
 
-# Verificar autenticación
-if not st.session_state.authenticated:
-    show_login_page()
-    st.stop()
+# Verificar autenticación antes de mostrar el dashboard
+if not check_password():
+    st.stop()  # No continuar si no está autenticado
 
 # Estilos personalizados - Tema Oscuro
 st.markdown("""
@@ -842,9 +826,13 @@ else:
                     color=tipo_counts.values,
                     color_continuous_scale='Viridis'
                 )
-                fig_tipo.update_layout(height=350, showlegend=False, margin=dict(l=0, r=0, t=20, b=0))
+                fig_tipo.update_layout(
+                    height=350, 
+                    showlegend=False, 
+                    margin=dict(l=0, r=0, t=0, b=0)
+                )
                 fig_tipo = apply_dark_theme(fig_tipo)
-                st.plotly_chart(fig_tipo, use_container_width=True)
+                st.plotly_chart(fig_tipo, use_container_width=True, config={'displayModeBar': False})
         
         with col2:
             st.write("**Robos: Violencia**")
@@ -887,11 +875,21 @@ else:
                     color_discrete_map={
                         'Con Violencia': '#EF553B',
                         'Sin Violencia': '#00CC96'
-                    }
+                    },
+                    hole=0
                 )
-                fig_violencia.update_layout(height=350, margin=dict(l=0, r=0, t=20, b=0))
+                fig_violencia.update_layout(
+                    height=350, 
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    showlegend=True
+                )
+                fig_violencia.update_traces(
+                    textposition='inside', 
+                    textinfo='percent+label',
+                    hovertemplate='<b>%{label}</b><br>Cantidad: %{value}<br>Porcentaje: %{percent}<extra></extra>'
+                )
                 fig_violencia = apply_dark_theme(fig_violencia)
-                st.plotly_chart(fig_violencia, use_container_width=True)
+                st.plotly_chart(fig_violencia, use_container_width=True, config={'displayModeBar': False})
         
         st.divider()
         
@@ -1004,11 +1002,23 @@ else:
                 fig_estacion = px.pie(
                     values=estacion_counts.values,
                     names=estacion_counts.index,
-                    title=''
+                    title='',
+                    hole=0
                 )
-                fig_estacion.update_layout(height=350, showlegend=True)
+                fig_estacion.update_layout(
+                    height=350, 
+                    showlegend=True,
+                    margin=dict(l=0, r=0, t=0, b=0),
+                    paper_bgcolor='rgba(0,0,0,0)',
+                    plot_bgcolor='rgba(0,0,0,0)'
+                )
+                fig_estacion.update_traces(
+                    textposition='inside',
+                    textinfo='percent+label',
+                    hovertemplate='<b>%{label}</b><br>Cantidad: %{value}<br>Porcentaje: %{percent}<extra></extra>'
+                )
                 fig_estacion = apply_dark_theme(fig_estacion)
-                st.plotly_chart(fig_estacion, use_container_width=True)
+                st.plotly_chart(fig_estacion, use_container_width=True, config={'displayModeBar': False})
         
         # COLUMNA 2: Tarjetas de Métricas
         with col2:
@@ -1234,11 +1244,22 @@ else:
                                 fig_estacion = px.pie(
                                     values=estacion_counts.values,
                                     names=estacion_counts.index,
-                                    title=f'Estaciones - {tipo}'
+                                    title=f'Estaciones - {tipo}',
+                                    hole=0
                                 )
-                                fig_estacion.update_layout(height=350)
+                                fig_estacion.update_layout(
+                                    height=350,
+                                    margin=dict(l=0, r=0, t=30, b=0),
+                                    paper_bgcolor='rgba(0,0,0,0)',
+                                    plot_bgcolor='rgba(0,0,0,0)'
+                                )
+                                fig_estacion.update_traces(
+                                    textposition='inside',
+                                    textinfo='percent+label',
+                                    hovertemplate='<b>%{label}</b><br>Cantidad: %{value}<br>Porcentaje: %{percent}<extra></extra>'
+                                )
                                 fig_estacion = apply_dark_theme(fig_estacion)
-                                st.plotly_chart(fig_estacion, use_container_width=True)
+                                st.plotly_chart(fig_estacion, use_container_width=True, config={'displayModeBar': False})
             else:
                 st.info("No hay datos de tipo de robo disponibles")
         else:
@@ -1312,7 +1333,8 @@ else:
                         folium.CircleMarker(
                             location=[row['latitude'], row['longitude']],
                             radius=3,
-                            popup=f"Distrito: {row['DISTRITO']}",
+                            popup=f"<b>Distrito:</b> {row['DISTRITO']}<br><b>Ubicación:</b> {row['latitude']:.4f}, {row['longitude']:.4f}",
+                            tooltip=f"📍 Distrito: {row['DISTRITO']}",
                             color=row['color'],
                             fill=True,
                             fillColor=row['color'],
@@ -1345,40 +1367,29 @@ else:
             st.info(" No se encontraron columnas de latitud y longitud en los datos")
     
     # ============ PREDICCIONES ============
-    elif page == " Predicciones":
-        st.header(" Predicciones de Robos")
+    elif page == "Predicciones":
+        st.header("📊 Predicciones de Robos por Mes")
+        
+        st.info("""
+        📅 **Predicciones Mensuales 2025**
+        
+        Las predicciones se generan utilizando modelos de redes neuronales entrenados con datos históricos 
+        de 12 meses. Los cuadrantes mostrados son los que tienen mayor riesgo de robos según los patrones identificados.
+        
+        Selecciona el mes para ver las predicciones específicas.
+        """)
         
         # Selector de mes
-        col_mes, col_info = st.columns([1, 3])
+        meses_disponibles = [
+            'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
+            'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+        ]
         
-        with col_mes:
-            meses = {
-                'Enero': 1,
-                'Febrero': 2,
-                'Marzo': 3,
-                'Abril': 4,
-                'Mayo': 5,
-                'Junio': 6,
-                'Julio': 7,
-                'Agosto': 8,
-                'Septiembre': 9,
-                'Octubre': 10,
-                'Noviembre': 11,
-                'Diciembre': 12
-            }
-            mes_seleccionado = st.selectbox(
-                " Selecciona el mes a predecir:",
-                options=list(meses.keys()),
-                index=0
-            )
-        
-        with col_info:
-            st.info(f"""
-             Mostrando predicciones para **{mes_seleccionado}**. Las predicciones se generan utilizando 
-            modelos de redes neuronales entrenados con datos históricos de 12 meses.
-            """)
-        
-        mes_numero = meses[mes_seleccionado]
+        mes_seleccionado = st.selectbox(
+            "📅 Selecciona el mes:",
+            meses_disponibles,
+            index=0
+        )
         
         # Verificar qué archivos de predicción existen
         pred_casa_existe = Path('exportados/Robos a casa habitacion/top_10_prediccion_robos_casa_habitacion_enero.csv').exists()
@@ -1440,6 +1451,10 @@ else:
                         df_display = df_predicciones.copy()
                         if 'PREDICCION_ROBOS_MES_N' in df_display.columns:
                             df_display['PREDICCION_ROBOS_MES_N'] = df_display['PREDICCION_ROBOS_MES_N'].round(2)
+                        
+                        # Seleccionar solo columnas relevantes (sin LATITUD y LONGITUD)
+                        columnas_mostrar = ['CUADRANTE', 'PREDICCION_ROBOS_MES_N', 'DISTRITO']
+                        df_display = df_display[[col for col in columnas_mostrar if col in df_display.columns]]
                         
                         # Mostrar con estilos oscuros
                         styled_html = df_display.to_html(index=False, escape=False)
@@ -1544,19 +1559,29 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "#1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "#2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "#3"
                                 else:
-                                    rank_badge = f"Top {idx+1}"
+                                    rank_badge = f"#{idx+1}"
+                                
+                                # Tooltip con HTML para saltos de línea
+                                nivel_riesgo = 'ALTO' if intensity > 0.66 else 'MEDIO' if intensity > 0.33 else 'BAJO'
+                                tooltip_html = f"""<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                    <b>Casa Habitación - Ranking {rank_badge}</b><br/>
+                                    • Cuadrante: {int(row['CUADRANTE'])}<br/>
+                                    • Distrito: {row['DISTRITO']}<br/>
+                                    • Predicción: {row['PREDICCION_ROBOS_MES_N']:.2f} robos<br/>
+                                    • Nivel de riesgo: {nivel_riesgo}
+                                </div>"""
                                 
                                 folium.CircleMarker(
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=folium.Tooltip(tooltip_html),
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1610,6 +1635,10 @@ else:
                         df_display = df_pred_negocios.copy()
                         if 'PREDICCION_ROBOS_MES_N' in df_display.columns:
                             df_display['PREDICCION_ROBOS_MES_N'] = df_display['PREDICCION_ROBOS_MES_N'].round(2)
+                        
+                        # Seleccionar solo columnas relevantes (sin LATITUD y LONGITUD)
+                        columnas_mostrar = ['CUADRANTE', 'PREDICCION_ROBOS_MES_N', 'DISTRITO']
+                        df_display = df_display[[col for col in columnas_mostrar if col in df_display.columns]]
                         
                         # Mostrar con estilos oscuros
                         styled_html = df_display.to_html(index=False, escape=False)
@@ -1710,19 +1739,29 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "#1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "#2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "#3"
                                 else:
-                                    rank_badge = f"Top {idx+1}"
+                                    rank_badge = f"#{idx+1}"
+                                
+                                # Tooltip con HTML para saltos de línea
+                                nivel_riesgo = 'ALTO' if intensity > 0.66 else 'MEDIO' if intensity > 0.33 else 'BAJO'
+                                tooltip_html = f"""<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                    <b>Negocios - Ranking {rank_badge}</b><br/>
+                                    • Cuadrante: {int(row['CUADRANTE'])}<br/>
+                                    • Distrito: {row['DISTRITO']}<br/>
+                                    • Predicción: {row['PREDICCION_ROBOS_MES_N']:.2f} robos<br/>
+                                    • Nivel de riesgo: {nivel_riesgo}
+                                </div>"""
                                 
                                 folium.CircleMarker(
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=folium.Tooltip(tooltip_html),
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1779,6 +1818,10 @@ else:
                         df_display = df_pred_vehiculos.copy()
                         if 'PREDICCION_ROBOS_MES_N' in df_display.columns:
                             df_display['PREDICCION_ROBOS_MES_N'] = df_display['PREDICCION_ROBOS_MES_N'].round(2)
+                        
+                        # Seleccionar solo columnas relevantes (sin LATITUD y LONGITUD)
+                        columnas_mostrar = ['CUADRANTE', 'PREDICCION_ROBOS_MES_N', 'DISTRITO']
+                        df_display = df_display[[col for col in columnas_mostrar if col in df_display.columns]]
                         
                         # Mostrar con estilos oscuros
                         styled_html = df_display.to_html(index=False, escape=False)
@@ -1879,19 +1922,29 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "#1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "#2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "#3"
                                 else:
-                                    rank_badge = f"Top {idx+1}"
+                                    rank_badge = f"#{idx+1}"
+                                
+                                # Tooltip con HTML para saltos de línea
+                                nivel_riesgo = 'ALTO' if intensity > 0.66 else 'MEDIO' if intensity > 0.33 else 'BAJO'
+                                tooltip_html = f"""<div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                                    <b>Vehículos - Ranking {rank_badge}</b><br/>
+                                    • Cuadrante: {int(row['CUADRANTE'])}<br/>
+                                    • Distrito: {row['DISTRITO']}<br/>
+                                    • Predicción: {row['PREDICCION_ROBOS_MES_N']:.2f} robos<br/>
+                                    • Nivel de riesgo: {nivel_riesgo}
+                                </div>"""
                                 
                                 folium.CircleMarker(
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=folium.Tooltip(tooltip_html),
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1940,9 +1993,11 @@ else:
         st.info("""
          **Información sobre las predicciones:**
         - Las predicciones se basan en modelos de redes neuronales entrenados con datos históricos
-        - Muestran los 10 cuadrantes con mayor riesgo para el mes de enero
+        - Muestran los 10 cuadrantes con mayor riesgo para cada mes de 2025
         - Los mapas permiten identificar geográficamente las zonas de alto riesgo
-        - Los modelos se actualizan ejecutando los notebooks correspondientes
+        - Los modelos se actualizan ejecutando el script `generar_todos_los_meses.py`
+        
+        💡 **Predicciones disponibles:** Enero a Diciembre 2025 (12 meses completos)
         """)
 
 # Footer

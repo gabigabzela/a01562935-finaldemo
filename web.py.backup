@@ -19,7 +19,7 @@ warnings.filterwarnings('ignore')
 # Configurar la página
 st.set_page_config(
     page_title="FICOTEC - Sistema de Análisis de Robos",
-    page_icon="",
+    page_icon="🔒",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -729,7 +729,7 @@ cuadrante_coords = get_cuadrante_coords(df_principal) if df_principal is not Non
 # Filtros de tipos de robo en sidebar
 if df_principal is not None:
     st.sidebar.divider()
-    st.sidebar.title(" Filtros")
+    st.sidebar.title("🚨 Filtros")
     
     if 'TIPO' in df_principal.columns:
         tipos_disponibles = df_principal['TIPO'].unique().tolist()
@@ -827,7 +827,7 @@ else:
         st.divider()
         
         # Visión General con gráficos
-        st.subheader(" Visión General")
+        st.subheader("👁️ Visión General")
         
         col1, col2 = st.columns(2)
         
@@ -896,7 +896,7 @@ else:
         st.divider()
         
         # ============ ANÁLISIS TEMPORAL ============
-        st.subheader(" Análisis Temporal")
+        st.subheader("📅 Análisis Temporal")
         
         col1, col2 = st.columns(2)
         
@@ -992,7 +992,7 @@ else:
         st.divider()
         
         # ============ ESTADÍSTICAS CLAVE ============
-        st.subheader(" Estadísticas Clave")
+        st.subheader("🔑 Estadísticas Clave")
         
         col1, col2, col3 = st.columns([1, 1.2, 1])
         
@@ -1092,7 +1092,7 @@ else:
             tipos_robo = sorted(df_principal['TIPO'].unique().tolist())
             
             if tipos_robo:
-                tabs = st.tabs([f" {tipo}" for tipo in tipos_robo])
+                tabs = st.tabs([f"🔹 {tipo}" for tipo in tipos_robo])
                 
                 for idx, tipo in enumerate(tipos_robo):
                     with tabs[idx]:
@@ -1335,18 +1335,18 @@ else:
                     m.get_root().html.add_child(folium.Element(legend_html))
                     
                     st_folium(m, width=1200, height=500)
-                    st.success(f" Puntos mostrados: {len(map_data):,}")
+                    st.success(f"✓ Puntos mostrados: {len(map_data):,}")
                 else:
                     st.map(map_data)
-                    st.success(f" Puntos mostrados: {len(map_data):,}")
+                    st.success(f"✓ Puntos mostrados: {len(map_data):,}")
             else:
-                st.warning(" No hay datos de ubicación disponibles")
+                st.warning("⚠️ No hay datos de ubicación disponibles")
         else:
-            st.info(" No se encontraron columnas de latitud y longitud en los datos")
+            st.info("⚠️ No se encontraron columnas de latitud y longitud en los datos")
     
     # ============ PREDICCIONES ============
-    elif page == " Predicciones":
-        st.header(" Predicciones de Robos")
+    elif page == "🔮 Predicciones":
+        st.header("🔮 Predicciones de Robos")
         
         # Selector de mes
         col_mes, col_info = st.columns([1, 3])
@@ -1367,14 +1367,14 @@ else:
                 'Diciembre': 12
             }
             mes_seleccionado = st.selectbox(
-                " Selecciona el mes a predecir:",
+                "📅 Selecciona el mes a predecir:",
                 options=list(meses.keys()),
                 index=0
             )
         
         with col_info:
             st.info(f"""
-             Mostrando predicciones para **{mes_seleccionado}**. Las predicciones se generan utilizando 
+            📊 Mostrando predicciones para **{mes_seleccionado}**. Las predicciones se generan utilizando 
             modelos de redes neuronales entrenados con datos históricos de 12 meses.
             """)
         
@@ -1390,14 +1390,14 @@ else:
         tabs_labels = []
         
         if pred_casa_existe:
-            tabs_labels.append(" Casa Habitación")
+            tabs_labels.append("🏠 Casa Habitación")
         if pred_negocios_existe:
-            tabs_labels.append(" Negocios")
+            tabs_labels.append("🏢 Negocios")
         if pred_vehiculos_existe:
-            tabs_labels.append(" Vehículos")
+            tabs_labels.append("🚗 Vehículos")
         
         if not tabs_labels:
-            st.warning(" No hay archivos de predicciones disponibles. Ejecuta los notebooks de modelos para generarlos.")
+            st.warning("⚠️ No hay archivos de predicciones disponibles. Ejecuta los notebooks de modelos para generarlos.")
             st.info("""
             Para generar predicciones:
             1. Ejecuta `modeloCasaHabitación.ipynb`
@@ -1412,7 +1412,7 @@ else:
         # Tab 1: Casa Habitación
         if pred_casa_existe:
             with tabs[tab_idx]:
-                st.subheader(" Top 10 Cuadrantes - Robos a Casa Habitación")
+                st.subheader("📊 Top 10 Cuadrantes - Robos a Casa Habitación")
                 
                 df_predicciones = load_prediction_data('casa', mes_seleccionado)
                 
@@ -1434,7 +1434,7 @@ else:
                     col1, col2 = st.columns([1, 1])
                     
                     with col1:
-                        st.write("** Top 10 Cuadrantes con Mayor Riesgo**")
+                        st.write("**🎯 Top 10 Cuadrantes con Mayor Riesgo**")
                         
                         # Formatear el dataframe para mejor presentación
                         df_display = df_predicciones.copy()
@@ -1476,7 +1476,7 @@ else:
                         """, unsafe_allow_html=True)
                         
                     with col2:
-                        st.write("** Gráfico de Predicciones**")
+                        st.write("**📈 Gráfico de Predicciones**")
                         
                         # Gráfico de predicciones mejorado
                         if 'CUADRANTE' in df_predicciones.columns and 'PREDICCION_ROBOS_MES_N' in df_predicciones.columns:
@@ -1495,7 +1495,7 @@ else:
                     st.divider()
                     
                     # Mapa de predicciones en toda la anchura
-                    st.write("** Mapa de Cuadrantes de Alto Riesgo**")
+                    st.write("**🗺️ Mapa de Cuadrantes de Alto Riesgo**")
                     
                     # Usar directamente los datos de predicciones que ya tienen coordenadas
                     if 'LATITUD' in df_predicciones.columns and 'LONGITUD' in df_predicciones.columns:
@@ -1530,12 +1530,12 @@ else:
                                 
                                 popup_html = f"""
                                 <div style="font-family: Arial; min-width: 180px; padding: 5px;">
-                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;"> Cuadrante {int(row['CUADRANTE'])}</h4>
+                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;">🏠 Cuadrante {int(row['CUADRANTE'])}</h4>
                                     <hr style="margin: 5px 0;">
-                                    <p style="margin: 3px 0;"><b> Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
-                                    <p style="margin: 3px 0;"><b> Distrito:</b> {row['DISTRITO']}</p>
-                                    <p style="margin: 3px 0;"><b> Ranking:</b> #{idx+1} de {len(map_pred)}</p>
-                                    <p style="margin: 3px 0;"><b> Nivel:</b> {' Alto' if intensity > 0.66 else ' Medio' if intensity > 0.33 else ' Bajo'}</p>
+                                    <p style="margin: 3px 0;"><b>🔥 Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
+                                    <p style="margin: 3px 0;"><b>📍 Distrito:</b> {row['DISTRITO']}</p>
+                                    <p style="margin: 3px 0;"><b>🏆 Ranking:</b> #{idx+1} de {len(map_pred)}</p>
+                                    <p style="margin: 3px 0;"><b>⚠️ Nivel:</b> {'🔴 Alto' if intensity > 0.66 else '🟠 Medio' if intensity > 0.33 else '🟡 Bajo'}</p>
                                 </div>
                                 """
                                 
@@ -1544,11 +1544,11 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "🥇 Top 1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "🥈 Top 2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "🥉 Top 3"
                                 else:
                                     rank_badge = f"Top {idx+1}"
                                 
@@ -1556,7 +1556,7 @@ else:
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=f"{rank_badge} 🏠 Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1566,11 +1566,11 @@ else:
                                 ).add_to(m)
                             
                             st_folium(m, width=None, height=500)
-                            st.success(f" Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
+                            st.success(f"✓ Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
                         else:
-                            st.info(" No hay datos de ubicación disponibles o folium no está instalado")
+                            st.info("📍 No hay datos de ubicación disponibles o folium no está instalado")
                     else:
-                        st.info(" Las predicciones no tienen coordenadas disponibles")
+                        st.info("📍 Las predicciones no tienen coordenadas disponibles")
                 else:
                     st.warning("No se encontraron datos de predicciones para Casa Habitación")
             tab_idx += 1
@@ -1578,7 +1578,7 @@ else:
         # Tab 2: Negocios
         if pred_negocios_existe:
             with tabs[tab_idx]:
-                st.subheader(" Top 10 Cuadrantes - Robos a Negocios")
+                st.subheader("📊 Top 10 Cuadrantes - Robos a Negocios")
                 
                 try:
                     df_pred_negocios = load_prediction_data('negocios', mes_seleccionado)
@@ -1604,7 +1604,7 @@ else:
                         col1, col2 = st.columns([1, 1])
                     
                     with col1:
-                        st.write("** Top 10 Cuadrantes con Mayor Riesgo**")
+                        st.write("**🎯 Top 10 Cuadrantes con Mayor Riesgo**")
                         
                         # Formatear el dataframe
                         df_display = df_pred_negocios.copy()
@@ -1646,7 +1646,7 @@ else:
                         """, unsafe_allow_html=True)
                         
                     with col2:
-                        st.write("** Gráfico de Predicciones**")
+                        st.write("**📈 Gráfico de Predicciones**")
                         
                         if 'CUADRANTE' in df_pred_negocios.columns and 'PREDICCION_ROBOS_MES_N' in df_pred_negocios.columns:
                             fig = px.bar(df_pred_negocios, 
@@ -1664,7 +1664,7 @@ else:
                     st.divider()
                     
                     # Mapa de predicciones
-                    st.write("** Mapa de Cuadrantes de Alto Riesgo**")
+                    st.write("**🗺️ Mapa de Cuadrantes de Alto Riesgo**")
                     
                     if 'LATITUD' in df_pred_negocios.columns and 'LONGITUD' in df_pred_negocios.columns:
                         map_pred = df_pred_negocios[['CUADRANTE', 'PREDICCION_ROBOS_MES_N', 'LATITUD', 'LONGITUD', 'DISTRITO']].dropna()
@@ -1696,12 +1696,12 @@ else:
                                 
                                 popup_html = f"""
                                 <div style="font-family: Arial; min-width: 180px; padding: 5px;">
-                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;"> Cuadrante {int(row['CUADRANTE'])}</h4>
+                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;">🏪 Cuadrante {int(row['CUADRANTE'])}</h4>
                                     <hr style="margin: 5px 0;">
-                                    <p style="margin: 3px 0;"><b> Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
-                                    <p style="margin: 3px 0;"><b> Distrito:</b> {row['DISTRITO']}</p>
-                                    <p style="margin: 3px 0;"><b> Ranking:</b> #{idx+1} de {len(map_pred)}</p>
-                                    <p style="margin: 3px 0;"><b> Nivel:</b> {' Alto' if intensity > 0.66 else ' Medio' if intensity > 0.33 else ' Bajo'}</p>
+                                    <p style="margin: 3px 0;"><b>🔥 Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
+                                    <p style="margin: 3px 0;"><b>📍 Distrito:</b> {row['DISTRITO']}</p>
+                                    <p style="margin: 3px 0;"><b>🏆 Ranking:</b> #{idx+1} de {len(map_pred)}</p>
+                                    <p style="margin: 3px 0;"><b>⚠️ Nivel:</b> {'🔴 Alto' if intensity > 0.66 else '🟠 Medio' if intensity > 0.33 else '🟡 Bajo'}</p>
                                 </div>
                                 """
                                 
@@ -1710,11 +1710,11 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "🥇 Top 1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "🥈 Top 2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "🥉 Top 3"
                                 else:
                                     rank_badge = f"Top {idx+1}"
                                 
@@ -1722,7 +1722,7 @@ else:
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=f"{rank_badge} 🏪 Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1732,13 +1732,13 @@ else:
                                 ).add_to(m)
                             
                             st_folium(m, width=None, height=500)
-                            st.success(f" Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
+                            st.success(f"✓ Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
                         else:
-                            st.info(" No hay datos de ubicación disponibles")
+                            st.info("📍 No hay datos de ubicación disponibles")
                     else:
-                        st.info(" Las predicciones no tienen coordenadas disponibles")
+                        st.info("📍 Las predicciones no tienen coordenadas disponibles")
                 except FileNotFoundError:
-                    st.warning(" Archivo de predicciones no disponible")
+                    st.warning("⚠️ Archivo de predicciones no disponible")
                     st.info("Para generar predicciones de Robos a Negocios, ejecuta el notebook `modeloNegocio.ipynb`")
                 except Exception as e:
                     st.error(f"Error al cargar predicciones: {str(e)}")
@@ -1747,7 +1747,7 @@ else:
         # Tab 3: Vehículos
         if pred_vehiculos_existe:
             with tabs[tab_idx]:
-                st.subheader(" Top 10 Cuadrantes - Robos de Vehículos")
+                st.subheader("📊 Top 10 Cuadrantes - Robos de Vehículos")
                 
                 try:
                     df_pred_vehiculos = load_prediction_data('vehiculos', mes_seleccionado)
@@ -1773,7 +1773,7 @@ else:
                         col1, col2 = st.columns([1, 1])
                     
                     with col1:
-                        st.write("** Top 10 Cuadrantes con Mayor Riesgo**")
+                        st.write("**🎯 Top 10 Cuadrantes con Mayor Riesgo**")
                         
                         # Formatear el dataframe
                         df_display = df_pred_vehiculos.copy()
@@ -1815,7 +1815,7 @@ else:
                         """, unsafe_allow_html=True)
                         
                     with col2:
-                        st.write("** Gráfico de Predicciones**")
+                        st.write("**📈 Gráfico de Predicciones**")
                         
                         if 'CUADRANTE' in df_pred_vehiculos.columns and 'PREDICCION_ROBOS_MES_N' in df_pred_vehiculos.columns:
                             fig = px.bar(df_pred_vehiculos, 
@@ -1833,7 +1833,7 @@ else:
                     st.divider()
                     
                     # Mapa de predicciones
-                    st.write("** Mapa de Cuadrantes de Alto Riesgo**")
+                    st.write("**🗺️ Mapa de Cuadrantes de Alto Riesgo**")
                     
                     if 'LATITUD' in df_pred_vehiculos.columns and 'LONGITUD' in df_pred_vehiculos.columns:
                         map_pred = df_pred_vehiculos[['CUADRANTE', 'PREDICCION_ROBOS_MES_N', 'LATITUD', 'LONGITUD', 'DISTRITO']].dropna()
@@ -1865,12 +1865,12 @@ else:
                                 
                                 popup_html = f"""
                                 <div style="font-family: Arial; min-width: 180px; padding: 5px;">
-                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;"> Cuadrante {int(row['CUADRANTE'])}</h4>
+                                    <h4 style="margin: 0; color: {color}; text-shadow: 1px 1px 2px black;">🚗 Cuadrante {int(row['CUADRANTE'])}</h4>
                                     <hr style="margin: 5px 0;">
-                                    <p style="margin: 3px 0;"><b> Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
-                                    <p style="margin: 3px 0;"><b> Distrito:</b> {row['DISTRITO']}</p>
-                                    <p style="margin: 3px 0;"><b> Ranking:</b> #{idx+1} de {len(map_pred)}</p>
-                                    <p style="margin: 3px 0;"><b> Nivel:</b> {' Alto' if intensity > 0.66 else ' Medio' if intensity > 0.33 else ' Bajo'}</p>
+                                    <p style="margin: 3px 0;"><b>🔥 Predicción:</b> {row['PREDICCION_ROBOS_MES_N']:.2f} robos</p>
+                                    <p style="margin: 3px 0;"><b>📍 Distrito:</b> {row['DISTRITO']}</p>
+                                    <p style="margin: 3px 0;"><b>🏆 Ranking:</b> #{idx+1} de {len(map_pred)}</p>
+                                    <p style="margin: 3px 0;"><b>⚠️ Nivel:</b> {'🔴 Alto' if intensity > 0.66 else '🟠 Medio' if intensity > 0.33 else '🟡 Bajo'}</p>
                                 </div>
                                 """
                                 
@@ -1879,11 +1879,11 @@ else:
                                 
                                 # Crear badge de ranking
                                 if idx == 0:
-                                    rank_badge = " Top 1"
+                                    rank_badge = "🥇 Top 1"
                                 elif idx == 1:
-                                    rank_badge = " Top 2"
+                                    rank_badge = "🥈 Top 2"
                                 elif idx == 2:
-                                    rank_badge = " Top 3"
+                                    rank_badge = "🥉 Top 3"
                                 else:
                                     rank_badge = f"Top {idx+1}"
                                 
@@ -1891,7 +1891,7 @@ else:
                                     location=[row['LATITUD'], row['LONGITUD']],
                                     radius=radius,
                                     popup=folium.Popup(popup_html, max_width=280),
-                                    tooltip=f"{rank_badge}  Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
+                                    tooltip=f"{rank_badge} 🚗 Cuadrante {int(row['CUADRANTE'])} - {row['DISTRITO']}: {row['PREDICCION_ROBOS_MES_N']:.2f} robos",
                                     color=color,
                                     fill=True,
                                     fillColor=fill_color,
@@ -1901,44 +1901,44 @@ else:
                                 ).add_to(m)
                             
                             st_folium(m, width=None, height=500)
-                            st.success(f" Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
+                            st.success(f"✓ Mostrando {len(map_pred)} cuadrantes de alto riesgo en el mapa")
                         else:
-                            st.info(" No hay datos de ubicación disponibles")
+                            st.info("📍 No hay datos de ubicación disponibles")
                     else:
-                        st.info(" Las predicciones no tienen coordenadas disponibles")
+                        st.info("📍 Las predicciones no tienen coordenadas disponibles")
                 except FileNotFoundError:
-                    st.warning(" Archivo de predicciones no disponible")
+                    st.warning("⚠️ Archivo de predicciones no disponible")
                     st.info("Para generar predicciones de Robos de Vehículos, ejecuta el notebook `modeloVehiculo.ipynb`")
                 except Exception as e:
                     st.error(f"Error al cargar predicciones: {str(e)}")
         
         # Mostrar resumen de predicciones disponibles
         st.divider()
-        st.subheader(" Estado de Modelos de Predicción")
+        st.subheader("📋 Estado de Modelos de Predicción")
         
         col1, col2, col3 = st.columns(3)
         with col1:
-            status = " Disponible" if pred_casa_existe else " No disponible"
+            status = "✅ Disponible" if pred_casa_existe else "❌ No disponible"
             color = "normal" if pred_casa_existe else "off"
-            st.metric(" Casa Habitación", status, delta=None)
+            st.metric("🏠 Casa Habitación", status, delta=None)
             if not pred_casa_existe:
                 st.caption("Ejecuta `modeloCasaHabitación.ipynb`")
         
         with col2:
-            status = " Disponible" if pred_negocios_existe else " No disponible"
-            st.metric(" Negocios", status, delta=None)
+            status = "✅ Disponible" if pred_negocios_existe else "❌ No disponible"
+            st.metric("🏢 Negocios", status, delta=None)
             if not pred_negocios_existe:
                 st.caption("Ejecuta `modeloNegocio.ipynb`")
         
         with col3:
-            status = " Disponible" if pred_vehiculos_existe else " No disponible"
-            st.metric(" Vehículos", status, delta=None)
+            status = "✅ Disponible" if pred_vehiculos_existe else "❌ No disponible"
+            st.metric("🚗 Vehículos", status, delta=None)
             if not pred_vehiculos_existe:
                 st.caption("Ejecuta `modeloVehiculo.ipynb`")
         
         # Información adicional
         st.info("""
-         **Información sobre las predicciones:**
+        💡 **Información sobre las predicciones:**
         - Las predicciones se basan en modelos de redes neuronales entrenados con datos históricos
         - Muestran los 10 cuadrantes con mayor riesgo para el mes de enero
         - Los mapas permiten identificar geográficamente las zonas de alto riesgo
