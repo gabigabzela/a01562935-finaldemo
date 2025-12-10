@@ -34,13 +34,11 @@ def check_password():
     """Retorna True si el usuario ingresó la contraseña correcta."""
     
     def password_entered():
-        """Verifica si la contraseña ingresada es correcta."""
-        if st.session_state["username"] in st.secrets.get("passwords", {}) and \
-           hashlib.sha256(st.session_state["password"].encode()).hexdigest() == \
-           st.secrets["passwords"][st.session_state["username"]]:
+        """Verifica si la contraseña ingresada es correcta (simple, sin hash)."""
+        if st.session_state["username"] == "ficotec2025" and st.session_state["password"] == "ficotec2025":
             st.session_state["password_correct"] = True
             st.session_state["user_name"] = st.session_state["username"]
-            del st.session_state["password"]  # No guardar la contraseña
+            del st.session_state["password"]
             del st.session_state["username"]
         else:
             st.session_state["password_correct"] = False
